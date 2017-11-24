@@ -7,8 +7,6 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -102,139 +100,11 @@ public class MainActivity extends AppCompatActivity {
     //    TODO (65) ubah title action bar dengan nama, kemudian tampilkan id dan nama
     //    TODO (66) handle onclick di detail activity untuk serach title film
 
-
-    TextView tv_total_result;
-    RecyclerView rv_films;
-    FilmAdapter adapter;
-    private ArrayList<String> judulList;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        tv_total_result = (TextView) findViewById(R.id.tv_total_result);
-        rv_films = (RecyclerView) findViewById(R.id.rv_films);
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        adapter = new FilmAdapter(this);
-        rv_films.setLayoutManager(linearLayoutManager);
-        rv_films.setAdapter(adapter);
-
-
-        if(savedInstanceState != null){
-            if(savedInstanceState.getString("total_result_key") != null){
-                tv_total_result.setText(savedInstanceState.getString("total_result_key"));
-            }
-            if(savedInstanceState.getStringArrayList("judul_list") != null){
-                ArrayList<String> judul = savedInstanceState.getStringArrayList("judul_list");
-                this.judulList = judul;
-                adapter.swapData(judul);
-                adapter.notifyDataSetChanged();
-            }
-        }
-
         Log.d(TAG_LIFECYCLE, "OnCreate");
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("total_result_key", tv_total_result.getText().toString());
-        outState.putStringArrayList("judul_list", judulList);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.search){
-//            Toast.makeText(this, "Search clicked", Toast.LENGTH_SHORT).show();
-            URL requestPopularMoviesUrl = NetworkUtils.buildPopularMoviesUrl();
-//            try {
-//                String result = NetworkUtils.getResponseFromHttpUrl(requestPopularMoviesUrl);
-                URL urls[] = {requestPopularMoviesUrl};
-                new NetworkTask().execute(urls);
-//                Bundle args = new Bundle();
-//                args.putString("string_to_url", requestPopularMoviesUrl.toString());
-//                getSupportLoaderManager().restartLoader(LOADER_ID, args, this).forceLoad();
-//            } catch (IOException e) {
-//
-//            }
-        }
-        return true;
-    }
-
-    class NetworkTask extends AsyncTask<URL, Void, String>{
-
-        // task yang dijalankan di background, wajib di override
-        @Override
-        protected String doInBackground(URL... urls) {
-            URL url = urls[0];
-            try {
-                return NetworkUtils.getResponseFromHttpUrl(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        // method yang pertama kali dilakukan sebelum do inbackground, berada di background thread
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        // method yang terakhir kali dilakukan setelah task selesai, berada di UI thread
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-//            tv_total_result.setText(s);
-            String total_result = getTotalResult(s);
-            tv_total_result.setText(total_result);
-            sendData(s);
-        }
-
-        // method yang berada di tengah2 ketika doInBackground, berada di UI thread
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
-        }
-    }
-
-    private String getTotalResult(String jsonData){
-        try {
-            JSONObject data = new JSONObject(jsonData);
-            String total_results = data.getString("total_results");
-            return total_results;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private void sendData(String jsonData){
-        try {
-            JSONObject data = new JSONObject(jsonData);
-            JSONArray result_array = data.getJSONArray("results");
-
-            judulList = new ArrayList<>();
-            for (int i =0;i<result_array.length();i++){
-                JSONObject film = result_array.getJSONObject(i);
-                String judul_film = film.getString("title");
-                judulList.add(judul_film);
-            }
-
-            adapter.swapData(judulList);
-            adapter.notifyDataSetChanged();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

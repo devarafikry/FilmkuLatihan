@@ -21,27 +21,6 @@ public class NetworkUtils {
     //    TODO (14) buat URI sesuai dokumentasi TMDB
     //    TODO (15) buat URL dari URI yang telah dibuat
 
-    public static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/";
-    public static final String TMDB_API_KEY = "b31eb468ed717f4e6cf0337e7b902e9a";
-
-    public static URL buildPopularMoviesUrl(){
-        Uri buildUri = Uri.parse(TMDB_BASE_URL)
-                .buildUpon()
-                .appendPath("movie")
-                .appendPath("popular")
-                .appendQueryParameter("api_key", TMDB_API_KEY)
-                .build();
-        URL url = null;
-        try {
-            url = new URL(buildUri.toString());
-        }
-        catch (MalformedURLException e){
-            e.printStackTrace();
-        }
-
-        return url;
-    }
-
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
