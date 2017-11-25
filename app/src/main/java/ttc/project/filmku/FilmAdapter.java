@@ -1,6 +1,7 @@
 package ttc.project.filmku;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +36,16 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmViewHolder>{
     public void onBindViewHolder(FilmViewHolder holder, int position) {
         holder.tv_position.setText(String.valueOf(position));
         holder.tv_film_name.setText(titles.get(position));
+
+        final Intent intent = new Intent(mContext, DetailActivity.class);
+        intent.putExtra("film_title", titles.get(position));
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     @Override
