@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TODO (1) Ganti jadi linearlayout -->
+<!-- COMPLETED (1) Ganti jadi linearlayout -->
 
 <LinearLayout
     android:orientation="vertical"
@@ -9,9 +9,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ttc.project.filmku.MainActivity">
-    <!-- TODO (2) Bikin textview 1 dgn id tv_total_result dan height nya wrap_content-->
-    <!-- TODO (3) Buat res directory menu -->
-    <!-- TODO (4) Buat file menu main_menu -->
+
+    <TextView
+        tools:text="CONTOH"
+        android:id="@+id/tv_total_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_film"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </android.support.v7.widget.RecyclerView>
+    <!-- COMPLETED (2) Bikin textview 1 dgn id tv_total_result dan height nya wrap_content-->
+    <!-- COMPLETED (3) Buat res directory menu -->
+    <!-- COMPLETED (4) Buat file menu main_menu -->
     <!-- TODO (27) buat recyclerview di bawah text -->
     <!-- TODO (28) beri id rv_films -->
 

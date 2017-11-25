@@ -1,5 +1,6 @@
 package ttc.project.filmku;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.PersistableBundle;
 import android.support.v4.app.LoaderManager;
@@ -7,6 +8,8 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,17 +28,94 @@ import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
+    ArrayList<String> titles = new ArrayList<>();
     private final static String TAG_LIFECYCLE = "Lifecycle";
-
+    TextView tv_total_result;
+    RecyclerView rv_film;
+    private FilmAdapter adapter;
     //    TODO (5) Buat variable text view tv_total_result yg dibuat di layout
-    //    TODO (6) Override onCreateOptionsMenu dan inflate menu yang dibuat
-    //    TODO (7) Handle onSelected menu dengan override onOptionsItemSelected
-    //    TODO (8) onOptionsItemSelected berisi method untuk mengeluarkan toast (sementara)
+    //    COMPLETED (6) Override onCreateOptionsMenu dan inflate menu yang dibuat
+    //    COMPLETED (7) Handle onSelected menu dengan override onOptionsItemSelected
+    //    COMPLETED (8) onOptionsItemSelected berisi method untuk mengeluarkan toast (sementara)
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    private String getTotalResults(String jsonData){
+        try {
+            JSONObject dataJson = new JSONObject(jsonData);
+            String total_result = dataJson.getString("total_results");
+            return total_result;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private ArrayList<String> getTitles(String jsonData){
+        ArrayList<String> results = new ArrayList<>();
+        try {
+            JSONObject dataJson = new JSONObject(jsonData);
+            JSONArray titlesJsonArray = dataJson.getJSONArray("results");
+            for (int i =0;i<titlesJsonArray.length();i++){
+                JSONObject film_item = titlesJsonArray.getJSONObject(i);
+                String title = film_item.getString("title");
+                results.add(title);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.getPopular){
+            Uri uri = NetworkUtils.buildPopularMovieUri();
+            new NetworkTask().execute(uri);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    class NetworkTask extends AsyncTask<Uri, Void, String>{
+
+        @Override
+        protected String doInBackground(Uri... uris) {
+            URL movieUrl = null;
+            try {
+                movieUrl = new URL(NetworkUtils.buildPopularMovieUri().toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+
+            if(movieUrl != null){
+                try {
+                    return NetworkUtils.getResponseFromHttpUrl(movieUrl);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            tv_total_result.setText(getTotalResults(s));
+            titles = getTitles(s);
+            adapter.swapData(titles);
+            adapter.notifyDataSetChanged();
+        }
+    }
 
     //IAK1 connect to the internet
     //mulai persiapan koneksi ke internet
-    //    TODO (9) beri permission connect internet di androidmanifest
-    //    TODO (10) cek kelas network utils sebagai class helper
+    //    COMPLETED (9) beri permission connect internet di androidmanifest
+    //    COMPLETED (10) cek kelas network utils sebagai class helper
     //mulai koneksikan ke internet
     //    TODO (16) coba panggil method getResponsefromHttp di onSelectedMenu (pasti error karena tidak di bg)
     //    TODO (17) karena error kita harus buat asyntask, sekarang buat inner class asyntask
@@ -105,6 +185,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG_LIFECYCLE, "OnCreate");
+        tv_total_result = (TextView) findViewById(R.id.tv_total_result);
+        rv_film = (RecyclerView) findViewById(R.id.rv_film);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        adapter = new FilmAdapter(this);
+        rv_film.setLayoutManager(layoutManager);
+        rv_film.setAdapter(adapter);
     }
 
     @Override
